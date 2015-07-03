@@ -3,37 +3,42 @@
 var redis = require('redis');
 
 /* Function to open a connection to the Redis server */
-var createConnection = function (host, port, cb) {
+var createConnection = function (host, port) {
   var client = redis.createClient(port, host);
 
   client.on('connect', function() {
     console.log('connected');
-    cb(client);
   });
+
+  return client;
 }
 
 /* Function to add a user to the mysql database */
 var addUser = function (user, client, cb) {
   var key = 'user:' + user.id;
-  var res;
+  var err;
 
-  if(client.exists(key)) {
-    console.log('Already registered user')
-  } else {
-    client.hmset(key, {
-      'accountid': user.id,
-      'full_name': user.name,
-      'fav_cam': user.fav_cam,
-      'fav_movies': user.fav_movies
-    }, function (err) {
-      if (err) {
-        console.log('Database insertion error: ' + err);
-        res = err;
-      }
-      cb(res);
-    });
-  }
-
+  client.exists(key, function (err, res) {
+    if (res === 1) {
+      err = 'ERROR: User already exists';
+      cb(err);
+    } else {
+      client.hmset(key, {
+        'accountid': user.id,
+        'full_name': user.name,
+        'dob': user.dob,
+        'fav_cam': user.fav_cam,
+        'fav_movies': user.fav_movies
+      }, function (err) {
+        if (err) {
+          console.log('Database insertion error: ' + err);
+          cb(err);
+        } else{
+          cb();
+        }
+      });
+    }
+  });
 }
 
 /* Function to update the favorite cam and movies fields */
@@ -49,12 +54,14 @@ var modifyUser = function (id, updateFields, client, cb) {
   if (updateFields.hasOwnProperty(fav_movies)) {
     client.hmset(key, {'fav_movies': updateFields.fav_movies});
   }
+
+  cb(err, res);
 }
 
 /* Function to return all the users in the database */
 var getUsers = function (client, cb) {
   var users = [];
-  var multiQueue = client.multi();
+  var multiQueue = client.multi(); // handle async call to the database
 
   client.keys('user:*', function (err, keys) {
     for (var i = 0; i < keys.length; i++) {
@@ -62,7 +69,13 @@ var getUsers = function (client, cb) {
     }
 
     multiQueue.exec(function (err, replies) {
-      console.log(JSON.stringify(replies));
+      users = replies;
+      cb(err, users);
     });
   });
 }
+
+exports.createConnection = createConnection;
+exports.addUser = addUser;
+exports.modifyUser = modifyUser;
+exports.getUsers = getUsers;

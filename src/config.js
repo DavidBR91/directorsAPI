@@ -4,6 +4,6 @@ exports.serverPort = 3001; // port in which the server will listen
 
 /* Redis server configuration */
 exports.redisHost = {
-  name: 'localhost',
+  host: 'localhost',
   port: 6379
 }

@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "^4.13.0"
+    "body-parser": "^1.13.1",
+    "express": "^4.13.0",
+    "redis": "^0.12.1",
+    "request": "^2.58.0"
   }
 }
