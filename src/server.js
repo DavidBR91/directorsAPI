@@ -62,6 +62,28 @@ app.post('/directors', jsonParser, function (req, res) {
 });
 
 /* Route to modify information about a certain director */
-app.put('/directors/:id', function (req, res) {
-  // directors PUT request route handler
+app.put('/directors', jsonParser, function (req, res) {
+  var authHeader = req.get('Authorization');
+
+  if (authHeader == undefined) {
+    res.status(401).send({Error: 'Unauthorized'});
+  } else {
+    // Code to get the hash part of the header
+    var splitted = authHeader.split(' ');
+    var hash = splitted[1]; // this is the hash
+
+    dbHelper.authenticate(hash, client, function (err, id) {
+      if (err) {
+        res.status(404).send({Error: 'User not found'});
+      } else {
+        dbHelper.modifyUser(id, req.body, client, function (err) {
+          if (err) {
+            res.status(500).send({Error: err});
+          } else {
+            res.status(200).send({ok:true});
+          }
+        });
+      }
+    });
+  }
 });
