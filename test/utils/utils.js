@@ -1,6 +1,7 @@
 /* File that contains aux functions needed by the tests */
 
 var redis = require('redis');
+var crypto = require('crypto');
 
 /* Create connection to the Redis server */
 var createConnection = function (host, port, cb) {
@@ -33,7 +34,14 @@ var pushToDb = function (user, client, cb) {
         'fav_cam': user.fav_cam,
         'fav_movies': user.fav_movies
       }, function (err) {
-        cb();
+        // Create md5 to authenticate
+        var hash = crypto.createHash('md5').update(String(user.id)).digest('hex');
+        var keyHash = 'hash:' + hash;
+        client.hmset(keyHash, {
+          'accountid': user.id
+        }, function (err) {
+          cb();
+        });
   });
 }
 
