@@ -26,13 +26,13 @@ describe('Modify user', function () {
   });
 
   // Clean the database after the tests
-  /*after(function (done) {
+  after(function (done) {
     utils.createConnection(config.redisHost.host, config.redisHost.port, function (client) {
       utils.cleanDB(client, function () {
         done();
       });
     });
-  });*/
+  });
 
   /* Regular test */
   it('Should modify the user', function (done) {
