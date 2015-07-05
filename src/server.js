@@ -40,22 +40,28 @@ app.post('/directors', jsonParser, function (req, res) {
         res.status(400).send({Error: err});
       } else {
         var resBody = JSON.parse(body);
-        user = {
-          id: resBody.id,
-          name: resBody.full_name,
-          dob: resBody.dob,
-          fav_cam: reqBody.fav_cam,
-          fav_movies: reqBody.fav_movies
-        }
 
-        // Add new user to the database
-        dbHelper.addUser(user, client, function (err) {
-          if (err) {
-            res.status(500).send({Error: err});
-          } else {
-            res.status(201).send({ok: true, user: user})
+        // Account not found
+        if(resBody.message == 'Account not found') {
+          res.status(400).send({Error: 'Account not found'});
+        } else {
+          user = {
+            id: resBody.id,
+            name: resBody.full_name,
+            dob: resBody.dob,
+            fav_cam: reqBody.fav_cam,
+            fav_movies: reqBody.fav_movies
           }
-        });
+
+          // Add new user to the database
+          dbHelper.addUser(user, client, function (err) {
+            if (err) {
+              res.status(500).send({Error: err});
+            } else {
+            res.status(201).send({ok: true, user: user})
+            }
+          });
+        }
       }
     });
   }
