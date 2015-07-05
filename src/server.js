@@ -80,7 +80,7 @@ app.put('/directors', jsonParser, function (req, res) {
           if (err) {
             res.status(500).send({Error: err});
           } else {
-            res.status(200).send({ok:true});
+            res.status(200).send({ok: true});
           }
         });
       }
