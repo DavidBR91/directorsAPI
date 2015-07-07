@@ -51,14 +51,14 @@ app.post('/directors', jsonParser, function (req, res) {
             dob: resBody.dob,
             fav_cam: reqBody.fav_cam,
             fav_movies: reqBody.fav_movies
-          }
+          };
 
           // Add new user to the database
           dbHelper.addUser(user, client, function (err) {
             if (err) {
               res.status(500).send({Error: err});
             } else {
-            res.status(201).send({ok: true, user: user})
+            res.status(201).send({ok: true, user: user});
             }
           });
         }
@@ -78,18 +78,22 @@ app.put('/directors', jsonParser, function (req, res) {
     var splitted = authHeader.split(' ');
     var hash = splitted[1]; // this is the hash
 
-    dbHelper.authenticate(hash, client, function (err, id) {
-      if (err) {
-        res.status(404).send({Error: 'User not found'});
-      } else {
-        dbHelper.modifyUser(id, req.body, client, function (err) {
-          if (err) {
-            res.status(500).send({Error: err});
-          } else {
-            res.status(200).send({ok: true});
-          }
-        });
-      }
-    });
+    if (splitted[0] != 'Bearer' || splitted.length != 2) { // Bad authorization header
+      res.status(401).send({Error: 'Unauthorized'});
+    } else {
+      dbHelper.authenticate(hash, client, function (err, id) {
+        if (err) {
+          res.status(404).send({Error: 'User not found'});
+        } else {
+          dbHelper.modifyUser(id, req.body, client, function (err) {
+            if (err) {
+              res.status(500).send({Error: err});
+            } else {
+              res.status(200).send({ok: true});
+            }
+          });
+        }
+      });
+    }
   }
 });

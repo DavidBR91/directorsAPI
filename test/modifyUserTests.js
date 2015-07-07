@@ -107,4 +107,26 @@ describe('Modify user', function () {
       done();
     });
   });
+
+  /* Bad authorization header */
+  it('Should not modify the user (bad authentication header)', function (done) {
+    var targetUri = 'http://' + config.serverHost.host + ':' + config.serverHost.port + '/directors';
+    var idMd5 ='ea29be645009c8ac6539342cf81d0a95';
+
+    var headers = {
+      Authorization: 'foo ' + idMd5
+    }
+
+    var options = {
+      method: 'put',
+      json: true,
+      url: targetUri,
+      headers: headers
+    }
+
+    request(options, function (err, res, body) {
+      res.statusCode.should.be.equal(401);
+      done();
+    });
+  });
 });
