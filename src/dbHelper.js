@@ -15,7 +15,7 @@ var createConnection = function (host, port) {
   return client;
 }
 
-/* Function to add a user to the mysql database */
+/* Function to add a user to the Redis database */
 var addUser = function (user, client, cb) {
   var key = 'user:' + user.id;
   var err;
